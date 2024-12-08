@@ -50,7 +50,7 @@ Create a `config.json` file in the root directory of the project:
   "ADMIN_USER_ID": 123456789,
   "role_to_add_questions": "Mods",
   "send_message": "15:00",
-  "Timezone": "Your TIme Zone"
+  "Timezone": "Your Time Zone"
 }
 
 ```
