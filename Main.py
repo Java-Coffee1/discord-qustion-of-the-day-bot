@@ -122,6 +122,10 @@ class Client(discord.Client):
                 await sent_message.delete()
         elif message.content.startswith("!manualqotd"):
             await post_qotd(message.channel)
+        elif message.content.startswith("uwu"):
+            await message.channel.send("owo")
+        elif message.content.startswith("owo"):
+            await message.channel.send("uwu")
 
     def is_authorized(self, user):
         """Check if the user is either an admin or has the Mods role."""
