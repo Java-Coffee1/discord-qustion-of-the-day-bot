@@ -4,6 +4,7 @@ from discord.ext import tasks
 import asyncio
 from datetime import datetime
 import pytz
+import random
 
 # Load the bot token and initialize intents
 with open("config.json") as config_file:
@@ -64,6 +65,25 @@ def remove_latest_question_from_json():
             json.dump(data, f, indent=4)
             f.truncate()
 
+def low_questions(threshold=5):
+    """Check if the number of saved questions is below a certain threshold."""
+    questions = get_all_questions_from_json()
+    return len(questions) < threshold
+
+async def notify_low_questions():
+    """Send a notification if questions are running low."""
+    admin_user = await client.fetch_user(ADMIN_USER_ID)
+    guild = discord.utils.get(client.guilds)  # Use the first guild (server) the bot is connected to
+    notify_channel = discord.utils.get(guild.text_channels, name="suggestions")  # Specify a notification channel
+
+    if low_questions():
+        if notify_channel:
+            await notify_channel.send("⚠️ The question queue is running low! Please add more questions.")
+        elif admin_user:
+            await admin_user.send("⚠️ The question queue is running low! Please add more questions.")
+
+
+
 async def post_qotd(channel):
     guild = channel.guild
     channel = client.get_channel(int(str(qotd_channel_id)) )
@@ -83,6 +103,7 @@ async def post_qotd(channel):
     else:
         await channel.send("No questions saved yet.")
 
+
 # ----------------- End Functions -----------------
 # ----------------- Client and Timer -----------------
 
@@ -96,6 +117,50 @@ class Client(discord.Client):
         # Ignore the bot's own messages
         if message.author == self.user:
             return
+        
+        if message.content.lower().startswith("uwu"):
+            if random.randint(1, 10) == 1:
+                await message.channel.send("owo")
+        elif message.content.lower().startswith("owo"):
+            if random.randint(1, 20) == 1:
+                await message.channel.send("uwu")
+        elif message.content.lower().startswith("meow"):
+            if random.randint(1, 40) == 1:
+                await message.channel.send("meowmeow")
+        elif message.content.lower().startswith("∩^ω^∩"):
+                if random.randint(1, 30) == 1:
+                    await message.channel.send("(｡♥‿♥｡)")
+        elif message.content.lower().startswith("skibidi"):
+            if random.randint(1, 3) == 1:
+                await message.channel.send("sigma sigma on the wall whoes the skibidis of them all")
+        elif message.content.lower().startswith("crazy"):
+            if random.randint(1, 35) == 1:
+                await message.channel.send("crazy? I was crazy once they lock me in a room a ruber room a ruber room with rats\n"
+                "crazy,I was crazy once they lock me in a room a ruber room a ruber room with ratsn\n"
+                "crazy,I was crazy once they lock me in a room a ruber room a ruber room with ratsn\n"
+                "crazy,I was crazy once they lock me in a room a ruber room a ruber room with ratsn\n"
+                "crazy,I was crazy once they lock me in a room a ruber room a ruber room with ratsn\n"
+                "crazy,I was crazy once they lock me in a room a ruber room a ruber room with ratsn\n"
+                "crazy,I was crazy once they lock me in a room a ruber room a ruber room with ratsn\n"
+                "crazy,I was crazy once they lock me in a room a ruber room a ruber room with ratsn\n"
+                "crazy,I was crazy once they lock me in a room a ruber room a ruber room with ratsn\n"
+                )
+        elif message.content.lower().startswith("woof"):
+            if random.randint(1, 5) == 1:
+                await message.channel.send("woof woof")
+        elif message.content.lower().startswith("arf"):
+            if random.randint(1, 5) == 1:
+                await message.channel.send("arf arf")
+        elif message.content.lower().startswith("bark"):
+            if random.randint(1, 5) == 1:
+                await message.channel.send("woof")
+        if message.content.lower().startswith("!credits"):
+            await message.channel.send(
+                "Bot made by <@770668417367670866>\n"
+                "Profile pic by Ryoshi\n"
+                "Bot creation date: December 6, 2024"
+            )
+
         # user check
         if not self.is_authorized(message.author):
             return
@@ -111,21 +176,18 @@ class Client(discord.Client):
                     await message.delete()
                     await sent_message.delete()
                 except IndexError:
-                    sent_message = await message.channel.send("Invalid format. Please ensure your message is within triple backticks (```text```).")
+                    sent_message = await message.channel.send("To save a question do this (!saveqotd \`\`\` your question here \`\`\`)")
                     await asyncio.sleep(4)  
                     await message.delete()
                     await sent_message.delete()
             else:
-                sent_message = await message.channel.send("Invalid format. Please ensure your message is within triple backticks (```text```).")
+                sent_message = await message.channel.send("To save a question do this (!saveqotd \`\`\` your question here \`\`\`)")
                 await asyncio.sleep(4)  
                 await message.delete()
                 await sent_message.delete()
         elif message.content.startswith("!manualqotd"):
             await post_qotd(message.channel)
-        elif message.content.startswith("uwu"):
-            await message.channel.send("owo")
-        elif message.content.startswith("owo"):
-            await message.channel.send("uwu")
+
 
     def is_authorized(self, user):
         """Check if the user is either an admin or has the Mods role."""
@@ -154,6 +216,7 @@ class Client(discord.Client):
             if channel:
                 await post_qotd(channel)
                 print("QOTD sent!")
+            await notify_low_questions()
 
 
 # Run the bot
