@@ -9,7 +9,7 @@ import random
 
 
 # Load the bot token and initialize intents
-with open("oldconfig.json") as config_file:
+with open("config.json") as config_file:
     config = json.load(config_file)
 intents = discord.Intents.default()
 intents.message_content = True
